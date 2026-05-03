@@ -8,3 +8,10 @@ __pycache__
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# Lambda dependencies — installed at deploy time via bundling, not committed to git
+# Only .py source files and requirements.txt in lambdas/ should be committed
+lambdas/*/
+lambdas/*.so
+lambdas/*.pth
+lambdas/*.dist-info
