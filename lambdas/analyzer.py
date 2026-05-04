@@ -78,6 +78,12 @@ Return a JSON object with a "matches" array. Each element must have:
 
     try:
         # Use Responses API — supports both PDF and DOCX via input_file
+        # Build strict JSON schema with additionalProperties: false
+        schema = FitmentResponse.model_json_schema()
+        schema["additionalProperties"] = False
+        for defn in schema.get("$defs", {}).values():
+            defn["additionalProperties"] = False
+
         response = client.responses.create(
             model="gpt-4o",
             input=[{"role": "user", "content": content_blocks}],
@@ -85,7 +91,7 @@ Return a JSON object with a "matches" array. Each element must have:
                 "format": {
                     "type": "json_schema",
                     "name": "FitmentResponse",
-                    "schema": FitmentResponse.model_json_schema(),
+                    "schema": schema,
                     "strict": True
                 }
             }
