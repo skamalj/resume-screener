@@ -4,10 +4,8 @@ import email
 from email import policy
 import urllib.parse
 import os
-import base64
 
 s3_client = boto3.client('s3')
-ssm_client = boto3.client('ssm')
 
 def handler(event, context):
     print("Parser received event:", json.dumps(event)[:500])
@@ -22,17 +20,23 @@ def handler(event, context):
     sender = msg.get('From')
     subject = msg.get('Subject', 'No Subject')
 
+    # Use the email message ID (S3 key) as a unique prefix for extracted files
+    prefix = f"parsed/{key}/"
     documents = []
 
     for part in msg.walk():
-        if part.get_content_maintype() == 'multipart': continue
-        if part.get('Content-Disposition') is None: continue
+        if part.get_content_maintype() == 'multipart':
+            continue
+        if part.get('Content-Disposition') is None:
+            continue
 
         filename = part.get_filename()
-        if not filename: continue
+        if not filename:
+            continue
 
         payload = part.get_payload(decode=True)
-        if not payload: continue
+        if not payload:
+            continue
 
         if filename.lower().endswith('.pdf'):
             mime_type = "application/pdf"
@@ -41,13 +45,16 @@ def handler(event, context):
         else:
             continue
 
-        b64 = base64.b64encode(payload).decode('utf-8')
+        # Save extracted file to S3 instead of embedding base64 in state payload
+        doc_key = f"{prefix}{filename}"
+        s3_client.put_object(Bucket=bucket, Key=doc_key, Body=payload, ContentType=mime_type)
+        print(f"Saved {filename} ({mime_type}) — {len(payload)} bytes → s3://{bucket}/{doc_key}")
+
         documents.append({
             "filename": filename,
             "mime_type": mime_type,
-            "file_data": f"data:{mime_type};base64,{b64}"
+            "s3_key": doc_key
         })
-        print(f"Encoded {filename} ({mime_type}) — {len(payload)} bytes")
 
     if not documents:
         raise ValueError("No valid PDF or DOCX attachments found.")

@@ -64,8 +64,9 @@ class ResumeScreenerStack(Stack):
         error_lambda = create_lambda("ErrorLambda", "error_handler", timeout_secs=30)
 
         # Grant specific permissions to the auto-generated Lambda roles
-        email_bucket.grant_read(parser_lambda)
+        email_bucket.grant_read_write(parser_lambda)  # reads raw email, writes extracted docs
         email_bucket.grant_read(error_lambda)
+        email_bucket.grant_read_write(analyzer_lambda)  # reads extracted docs from S3
 
         ssm_openai_key_arn = "arn:aws:ssm:ap-south-1:719030485523:parameter/irdai/openai-api-key"
 

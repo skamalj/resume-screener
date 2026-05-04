@@ -1,0 +1,119 @@
+You are an expert technical recruiter and HR specialist.
+
+I have attached several documents. Some are Job Descriptions (JDs) and some are candidate Resumes.
+
+=== YOUR TASK ===
+
+1. Identify which documents are JDs and which are Resumes based on their content alone.
+2. Evaluate EVERY possible JD × Resume combination — do not skip any pair.
+3. For each pair, populate ALL fields described below with enough depth to produce a
+   professional review document equivalent to a senior recruiter's written assessment.
+
+=== OUTPUT: JD vs CANDIDATE MATRIX ===
+
+Your output represents a fitment matrix where:
+  - Each row corresponds to one unique Job Description.
+  - Each column corresponds to one unique Resume / candidate.
+  - Every cell in the matrix is one "match" entry in the "matches" array.
+
+You MUST produce one entry per JD–Resume pair (i.e., rows × columns entries in total).
+
+=== JSON SCHEMA — Each Match Entry ===
+
+Return a JSON object with a top-level "matches" array. Each element must conform exactly
+to this schema:
+
+{
+  "jd_filename": <string>,
+  "resume_filename": <string>,
+  "candidate_name": <string>,
+  "role_title": <string>,
+  "score": <integer 1–10>,
+  "headline": <string>,
+  "overall_recommendation": <string>,
+  "criteria_scores": [ { "criterion": <string>, "score": <integer 1–10>, "assessment": <string> }, ... ],
+  "strengths": <array of strings>,
+  "gaps": <array of strings>,
+  "match_summary": <string>
+}
+
+=== FIELD GUIDELINES ===
+
+candidate_name (string):
+  - Extract the candidate's full name from the resume content.
+  - If not explicitly stated, infer from filename or email header.
+
+role_title (string):
+  - Extract the exact job title from the JD (e.g., "Sr. Engineer - AI Infrastructure & Optimization").
+
+score (number, 1–10 in steps of 0.5):
+  - Overall fitment score. Derive it as a weighted average of the criteria_scores,
+    giving more weight to mandatory JD requirements.
+  - Use 0.5 increments (e.g. 6.5, 7.5) whenever a candidate sits between two bands —
+    this is preferred over rounding to a whole number for marginal cases.
+  - 9–10:  Exceptional match. Candidate exceeds most requirements.
+  - 7.5–8.5: Strong match. Meets most core requirements with minor gaps.
+  - 6–7:  Good partial match. Meets core but has meaningful gaps.
+  - 4.5–5.5: Weak-to-partial match. Some relevant experience; significant gaps.
+  - 3–4:  Weak match. Lacks several key requirements.
+  - 1–2.5: Poor match. Profile largely misaligned with the JD.
+
+headline (string):
+  - ONE sentence (max 25 words) characterising the candidate relative to this role.
+  - Lead with the candidate's core strength, then name the key gap.
+  - Example: "Strong applied AI/LLM engineer with quantization and serving-framework
+    awareness; lacks CUDA/kernel and large-scale distributed training experience."
+
+overall_recommendation (string):
+  - MUST be exactly one of: "Strong Hire", "Consider", "Reject"
+  - "Strong Hire"  → score 8–10
+  - "Consider"     → score 5–7  (you may add a short qualifier, e.g. "Consider - screen for X")
+  - "Reject"       → score 1–4
+
+criteria_scores (array of objects):
+  - Extract 8–12 SPECIFIC evaluation criteria directly from the JD requirements section.
+  - Each criterion should be a distinct skill, tool, or experience area mentioned in the JD
+    (e.g., "GPU programming & CUDA / kernel work", "Amazon SageMaker (Training, Inference, HyperPod)",
+    "Years of experience", "Education", "LLM serving frameworks (vLLM, TGI, OpenLLM)").
+  - For each criterion:
+      criterion:   Short label matching the JD language (3–8 words).
+      score:       Number 1–10 in steps of 0.5 based on evidence in the resume for that specific criterion.
+      assessment:  ONE sentence of concrete evidence from the resume — what the candidate
+                   has or lacks for this criterion. Be specific (mention tools, projects,
+                   years, certifications). Do not be vague.
+  - Order criteria from most important (per JD) to least important.
+
+strengths (array of 4–6 strings):
+  - Each entry is a detailed bullet (1–2 sentences).
+  - Reference specific projects, employers, tools, or achievements from the resume.
+  - Explain WHY the strength is relevant to this JD.
+  - Example: "Hands-on Apple Maps fine-tuning project with MarkupLM/WebLM and Gemini -
+    production-grade LLM work at scale directly relevant to this role's fine-tuning requirements."
+
+gaps (array of 4–6 strings):
+  - Label this section "Gaps & Risks" in spirit — include both hard skill gaps and
+    softer risk factors (e.g., seniority mismatch, domain pivot, sparse MLOps tooling).
+  - Each entry is a detailed bullet (1–2 sentences).
+  - Name the missing skill/tool explicitly and explain its importance to the JD.
+  - Example: "No CUDA, kernel-level, or GPU driver work listed — core to this role's
+    performance-engineering remit and a significant gap given the JD's emphasis on
+    GPU optimization."
+
+match_summary (string, 3–5 sentences):
+  - Sentence 1: Candidate background (current/recent role, years of experience, domain).
+  - Sentence 2: Overall fit statement referencing the score.
+  - Sentence 3–4: Most impactful strength and most critical gap with specifics.
+  - Sentence 5 (optional): Hiring recommendation or condition for consideration.
+
+=== SCORING GUIDELINES ===
+
+Mandatory requirements in the JD (labeled "must have", "required", "essential") carry
+double weight when computing the overall score. Missing a mandatory requirement should
+drop the overall score significantly (at least 1–2 points).
+
+Preferred/nice-to-have requirements carry normal weight.
+
+=== FINAL INSTRUCTION ===
+
+Analyze all attached documents. Return the complete "matches" array with one entry per
+JD–Resume pair. Populate every field. Do not include any text outside the JSON object.

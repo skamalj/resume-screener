@@ -1,0 +1,51 @@
+{
+  "variants": [
+    {
+      "match": "No PDF or DOCX attachments",
+      "subject_suffix": "No Valid Attachments Found",
+      "title": "No Valid Attachments Found",
+      "message": "We received your email but could not find any PDF or DOCX files attached. Please re-send your email with at least one Job Description and one Resume attached as PDF or DOCX files."
+    },
+    {
+      "match": "At least 2 documents are required",
+      "subject_suffix": "Insufficient Documents",
+      "title": "More Documents Needed",
+      "message": "Our screener needs at least two documents — one Job Description and one Resume — to run a fitment analysis. Please re-send your email with both files attached."
+    },
+    {
+      "match": "Failed to generate fitment analysis",
+      "subject_suffix": "Analysis Could Not Be Completed",
+      "title": "AI Analysis Failed",
+      "message": "We were unable to complete the AI-powered analysis for your documents. This may be a temporary issue. Please try again in a few minutes. If the problem continues, check that your files are not password-protected or corrupted."
+    },
+    {
+      "match": "OPENAI_API_KEY is missing",
+      "subject_suffix": "Service Unavailable",
+      "title": "Service Temporarily Unavailable",
+      "message": "We encountered a configuration issue on our end. Our team has been notified automatically. Please try again later."
+    },
+    {
+      "match": "Task timed out",
+      "subject_suffix": "Request Timed Out",
+      "title": "Processing Timed Out",
+      "message": "Your request took longer than expected and could not be completed. This sometimes happens with very large documents. Please try again with smaller files or fewer attachments at a time."
+    },
+    {
+      "match": "States.DataLimitExceeded",
+      "subject_suffix": "Too Many or Too Large Attachments",
+      "title": "Attachments Too Large to Process Together",
+      "message": "The total size of your attached documents exceeds our processing limit. Please try again with fewer attachments per email, or split your request into multiple emails (e.g. one JD with one or two resumes at a time)."
+    },
+    {
+      "match": "Runtime.OutOfMemory",
+      "subject_suffix": "Processing Error",
+      "title": "Document Too Large to Process",
+      "message": "One or more of your documents exceeded our processing capacity. Please try again with smaller or fewer files."
+    }
+  ],
+  "default": {
+    "subject_suffix": "Processing Error",
+    "title": "An Unexpected Error Occurred",
+    "message": "We received your request but ran into an unexpected problem during processing. Please try again. If the issue persists, ensure your attachments are valid PDF or DOCX files and are not password-protected or corrupted."
+  }
+}
